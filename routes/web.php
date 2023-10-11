@@ -14,11 +14,7 @@
 */
 
 $router->get('/', function () use ($router) {
-
-    $ids = [
-        12,3,4,5,6
-    ];
-
-    dump(\Ramsey\Uuid\Uuid::uuid4()->toString());
     return $router->app->version();
 });
+
+$router->get('/auth/{provider}', ['as' => 'authenticate', 'uses' => 'AuthController@postAuthenticate']);

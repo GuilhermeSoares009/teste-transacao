@@ -13,6 +13,13 @@ abstract class TestCase extends BaseTestCase
      */
     public function createApplication()
     {
-        return require __DIR__.'/../bootstrap/app.php';
+        return require './bootstrap/app.php';
+    }
+
+    public function testUserShouldNotAuthenticateWithWrongProvider() {
+        $request = $this->post(route('authenticate',['provider' => 'texto']));
+
+        $request->assertResponseStatus(422);
+        $request->seeJson(['errors' => ['main' => 'Wrong provider provided']]);
     }
 }
