@@ -1,1 +1,1 @@
-{"version":1,"defects":[],"times":{"Tests\\ExampleTest::test_that_base_endpoint_returns_a_successful_response":0.094,"Feature\\app\\Http\\Controllers\\AuthControllerTest::testUserShouldNotAuthenticateWithWrongProvider":0.064}}
+{"version":1,"defects":[],"times":{"Tests\\ExampleTest::test_that_base_endpoint_returns_a_successful_response":1.687,"Feature\\app\\Http\\Controllers\\AuthControllerTest::testUserShouldNotAuthenticateWithWrongProvider":1.958,"Feature\\app\\Http\\Controllers\\AuthControllerTest::testUserShouldBeDeniedIfNoRegistered":0.48}}
