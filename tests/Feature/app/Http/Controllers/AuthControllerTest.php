@@ -22,8 +22,6 @@ class AuthControllerTest extends TestCase
             'password' => 'secret123'
         ];
 
-
-        dd('abaixo');
         $request = $this->post(route('authenticate', ['provider' => 'deixa-o-sub']), $payload);
 
         $request->assertResponseStatus(422);
