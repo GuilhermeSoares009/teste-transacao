@@ -2,6 +2,7 @@
 
 namespace Feature\app\Http\Controllers;
 
+use App\Models\User;
 use Laravel\Lumen\Testing\DatabaseMigrations;
 use Laravel\Lumen\Testing\TestCase;
 
@@ -13,6 +14,7 @@ class AuthControllerTest extends TestCase
         return require './bootstrap/app.php';
     }
 
+
     public function testUserShouldNotAuthenticateWithWrongProvider() {
 
         $payload = [
@@ -20,6 +22,8 @@ class AuthControllerTest extends TestCase
             'password' => 'secret123'
         ];
 
+
+        dd('abaixo');
         $request = $this->post(route('authenticate', ['provider' => 'deixa-o-sub']), $payload);
 
         $request->assertResponseStatus(422);
@@ -33,11 +37,28 @@ class AuthControllerTest extends TestCase
             'password' => 'secret123'
         ];
 
-        $request = $this->post(route('authenticate', ['provider' => 'user']), $payload);
+        $request = $this->post(route('authenticate', ['provider' => 'retailer']), $payload);
 
         $request->assertResponseStatus(401);
         $request->seeJson(['errors' => ['main' => 'Wrong credentials']]);
     }
+
+    public function testUserShouldSendWrongPassword(){
+
+        $user = User::factory()->create();
+ 
+        $payload = [
+            'email' => $user->email,
+            'password' => 'teste123'
+        ];
+
+        $request = $this->post(route('authenticate', ['provider' => 'user']), $payload);
+
+        $request->assertResponseStatus(401);
+        $request->seeJson(['errors' => ['main' => 'Wrong credentials']]);
+
+    }
+
 }
 
 
