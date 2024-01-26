@@ -20,5 +20,6 @@ class AppServiceProvider extends ServiceProvider
     public function boot() 
     {
         Passport::ignoreMigrations();
+        \Dusterio\LumenPassport\LumenPassport::routes($this->app);
     }
 }

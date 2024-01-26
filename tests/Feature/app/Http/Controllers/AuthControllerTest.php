@@ -13,7 +13,7 @@ class AuthControllerTest extends TestCase
     public function createApplication() {
         return require './bootstrap/app.php';
     }
-
+    
 
     public function testUserShouldNotAuthenticateWithWrongProvider() {
 
@@ -28,7 +28,7 @@ class AuthControllerTest extends TestCase
         $request->seeJson(['errors' => ['main' => 'Wrong provider provided']]);
     }
 
-    public function testUserShouldBeDeniedIfNoRegistered() {
+    public function testUserShouldBeDeniedIfNotRegistered() {
 
         $payload = [
             'email' => 'hey@guilherme3s.dev',
@@ -44,7 +44,7 @@ class AuthControllerTest extends TestCase
     public function testUserShouldSendWrongPassword(){
 
         $user = User::factory()->create();
- 
+
         $payload = [
             'email' => $user->email,
             'password' => 'teste123'
