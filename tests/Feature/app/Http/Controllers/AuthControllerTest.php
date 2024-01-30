@@ -57,6 +57,21 @@ class AuthControllerTest extends TestCase
 
     }
 
+    public function testUserCanAuthenticate(){
+        
+        $this->artisan('passport:install');
+        $user = User::factory()->create();
+
+        $payload = [
+            'email' => $user->email,
+            'password' => 'secret123'
+        ];
+
+        $request = $this->post(route('authenticate', ['provider' => 'user']), $payload);
+        $request->assertResponseStatus(200);
+        $request->seeJsonStructure(['access_token','expires_at', 'provider']);
+    }
+
 }
 
 
