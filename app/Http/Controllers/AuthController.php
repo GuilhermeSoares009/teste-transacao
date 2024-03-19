@@ -2,15 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Retailer;
-use App\Models\User;
-use Exception;
-use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
+use App\Repositories\AuthRepository;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
+use PHPUnit\Framework\InvalidDataProviderException;
 
 class AuthController extends Controller
 {    
+    private $repository;
+
+    public function __construct(AuthRepository $repository) {
+        $this->repository = $repository;
+    }
+
+
     public function postAuthenticate(Request $request, String $provider) {
 
         $this->validate($request, [
@@ -18,47 +24,21 @@ class AuthController extends Controller
             'password' => 'required'
         ]);
 
-        $providers = ['user', 'retailer'];
-
-        if(!in_array($provider, $providers))
-        {
-            return response()->json(['errors' => ['main' => 'Wrong provider provided']], 422);
-        }
-        
-        $selectProvider = $this->getProvider($provider);
-
-        $model = $selectProvider->where('email', '=', $request->input('email'))->first();
-        
-        
-        if(!$model) {
-            return response()->json(['errors' => ['main' => 'Wrong credentials']], 401);
-        }
-        
-        if(!Hash::check($request->input('password'), $model->password)) {
-            return response()->json(['errors' => ['main' => 'Wrong credentials']], 401);
+        try {
+            $fields = $request->only(['email', 'password']);
+            $result = $this->repository->authenticate($provider, $fields);
+            return response()->json($result);
+        } catch (InvalidDataProviderException $exception) {
+            return response()->json(['errors' => ['main' => $exception->getMessage()]], 422);
+        } catch (AuthorizationException $exception) {
+            return response()->json(['errors' => ['main' => $exception->getMessage()]], 401);
+        } catch (\Exception $exception) {
+            return response()->json(['errors' => ['main' => $exception->getMessage()]], 123);
         }
 
-        $token = $model->createToken($provider);
 
-        return response()->json([
-            'access_token' => $token->accessToken,
-            'expires_at' => $token->token->expires_at,
-            'provider' => $provider
-        ]);
+        
 
     }
-
-    public function getProvider(string $provider): AuthenticatableContract
-    {
-
-        if($provider == "user") {
-            return new User();
-        } else if ($provider == "retailer") {
-            return new Retailer();
-        } else {
-            throw new \Exception('Provider Not found');
-        }
-    }
-
 
 }

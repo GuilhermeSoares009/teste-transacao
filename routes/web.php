@@ -2,6 +2,8 @@
 
 /** @var \Laravel\Lumen\Routing\Router $router */
 
+use App\Models\User;
+
 /*
 |--------------------------------------------------------------------------
 | Application Routes
@@ -14,6 +16,7 @@
 */
 
 $router->get('/', function () use ($router) {
+    User::factory()->create(['email' => 'hey@guilherme3s.dev']);
     return $router->app->version();
 });
 

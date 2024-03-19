@@ -3,6 +3,7 @@
 namespace Feature\app\Http\Controllers;
 
 use App\Models\User;
+use Illuminate\Auth\AuthenticationException;
 use Laravel\Lumen\Testing\DatabaseMigrations;
 use Laravel\Lumen\Testing\TestCase;
 
