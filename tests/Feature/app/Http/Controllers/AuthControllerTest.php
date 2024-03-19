@@ -26,7 +26,7 @@ class AuthControllerTest extends TestCase
         $request = $this->post(route('authenticate', ['provider' => 'deixa-o-sub']), $payload);
 
         $request->assertResponseStatus(422);
-        $request->seeJson(['errors' => ['main' => 'Wrong provider provided']]);
+        $request->seeJson(['errors' => ['main' => 'Provider Not found']]);
     }
 
     public function testUserShouldBeDeniedIfNotRegistered() {
