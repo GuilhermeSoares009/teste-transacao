@@ -21,3 +21,4 @@ $router->get('/', function () use ($router) {
 });
 
 $router->post('/auth/{provider}', ['as' => 'authenticate', 'uses' => 'AuthController@postAuthenticate']);
+$router->get('/users/me', ['as' => 'usersMe', 'uses' => 'MeController@getMe']);

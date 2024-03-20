@@ -14,7 +14,7 @@ class AuthRepository
     public function authenticate(string $provider, array $fields): array 
     {
         $selectedProvider = $this->getProvider($provider);
-        $model = $selectedProvider->where('email', '=', $fields['email'])->first();
+        $model = $selectedProvider->where('email', $fields['email'])->first();
         
         if(!$model) {
             throw new AuthorizationException("Wrong credentials", 401);
@@ -26,6 +26,7 @@ class AuthRepository
 
         $token = $model->createToken($provider);
 
+     
         return [
             'access_token' => $token->accessToken,
             'expires_at' => $token->token->expires_at,
@@ -37,6 +38,7 @@ class AuthRepository
     {
 
         if($provider == "user") {
+            $t = new User();
             return new User();
         } else if ($provider == "retailer") {
             return new Retailer();

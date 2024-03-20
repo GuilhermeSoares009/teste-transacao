@@ -27,6 +27,7 @@ class AuthController extends Controller
         try {
             $fields = $request->only(['email', 'password']);
             $result = $this->repository->authenticate($provider, $fields);
+
             return response()->json($result);
         } catch (InvalidDataProviderException $exception) {
             return response()->json(['errors' => ['main' => $exception->getMessage()]], 422);
