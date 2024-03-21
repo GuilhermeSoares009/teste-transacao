@@ -15,6 +15,11 @@ class AuthControllerTest extends TestCase
         return require './bootstrap/app.php';
     }
     
+    public function setUp(): void
+    {
+        parent::setUp();
+    }
+
 
     public function testUserShouldNotAuthenticateWithWrongProvider() {
 

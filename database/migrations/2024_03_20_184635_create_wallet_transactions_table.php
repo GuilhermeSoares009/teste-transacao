@@ -15,7 +15,7 @@ class CreateWalletTransactionsTable extends Migration
     {
         Schema::create('wallet_transactions', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignUuid('wallet_id')->references('id')->on('wallets')->onDelete();
+            $table->foreignUuid('wallet_id')->references('id')->on('wallets')->cascadeOnDelete();
             $table->uuid('payer_id');
             $table->uuid('payee_id');
             $table->decimal('amount');
