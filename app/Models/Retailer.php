@@ -33,4 +33,9 @@ class Retailer extends Model implements AuthenticatableContract, AuthorizableCon
     protected $hidden = [
         'password',
     ];
+
+    public function wallet()
+    {
+        return $this->hasOne(Wallet::class);    
+    }
 }

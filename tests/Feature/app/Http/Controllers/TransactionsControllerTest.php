@@ -27,6 +27,7 @@ class TransactionsControllerTest extends TestCase
             'payee_id' => 'fodasenexiste',
             'amount'   => 123
         ];
+
         $request = $this->actingAs($user,'users')
             ->post(route('postTransaction'),$payload);
 
@@ -35,6 +36,22 @@ class TransactionsControllerTest extends TestCase
     }
 
     public function testUserShouldBeExistingOnProviderToTransfer(){
+        $this->artisan('passport:install');
+        $user = User::factory()->create();
+        $payload = [
+            'provider' => 'users',
+            'payee_id' => 'fodasenexiste',
+            'amount'   => 123
+        ];
+        
+        $request = $this->actingAs($user,'users')
+            ->post(route('postTransaction'),$payload);
+        $request->assertResponseStatus(404);
+
+    }
+
+
+    public function testUserShouldBeAvalidUserToTransfer(){
         $this->artisan('passport:install');
         $user = User::factory()->create();
         $payload = [
