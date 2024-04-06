@@ -2,6 +2,7 @@
 
 namespace app\Http\Controllers\Transactions;
 
+use App\Exceptions\TransactionDeniedException as TransactionDeniedException;
 use App\Http\Controllers\Controller;
 use App\Repositories\Transaction\TransactionRepository;
 use Illuminate\Http\Request;
@@ -32,6 +33,8 @@ class TransactionsController extends Controller
             return response()->json($result);
         }  catch (InvalidDataProviderException $exception) {
             return response()->json(['errors' => ['main' => $exception->getMessage()]], 422);
+        }  catch (TransactionDeniedException $exception) {
+            return response()->json(['errors' => ['main' => $exception->getMessage()]], 401);
         }
 
     }

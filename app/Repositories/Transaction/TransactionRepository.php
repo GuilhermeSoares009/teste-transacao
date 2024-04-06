@@ -2,6 +2,8 @@
 
 namespace App\Repositories\Transaction;
 
+use App\Exceptions\NoMoreMoneyException;
+use App\Exceptions\TransactionDeniedException as TransactionDeniedException;
 use App\Models\Retailer;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -11,23 +13,28 @@ class TransactionRepository
 {
     public function handle(array $data): array
     {
+
+        if(!$this->guardCanTransfer()) {
+            throw new TransactionDeniedException('Retailer not authorized to make transactions', 401);
+        }
+
         $model = $this->getProvider($data['provider']);
 
         $user = $model->findOrFail($data['payee_id']);
 
-        $user->wallet->transaction()->create([
-
-        ]);
+        if(!$this->checkUserBalance($user,$data['amount'])){
+            throw new NoMoreMoneyException("you don't have money");
+        }
 
         return [];
     }
 
-    public function getGuard()
+    public function guardCanTransfer(): bool
     {
         if(Auth::guard('users')->check()) {
-            return 'user';
-        } else if (Auth::guard('retailer')->check()) {
-            return 'retailer';
+            return true;
+        } else if (Auth::guard('retailers')->check()) {
+            return false;
         } else {
             throw new InvalidDataProviderException('Provider Not found',422);
         }
@@ -43,5 +50,11 @@ class TransactionRepository
         } else {
             throw new InvalidDataProviderException('Provider Not found',422);
         }
+    }
+
+    private function checkUserBalance($user, $money)
+    {
+        return $user->wallet->ballance >= $money;
+    
     }
 }

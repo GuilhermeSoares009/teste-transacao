@@ -2,6 +2,7 @@
 
 namespace Feature\app\Http\Controllers;
 
+use App\Models\Retailer;
 use App\Models\User;
 use Laravel\Lumen\Testing\DatabaseMigrations;
 use Laravel\Lumen\Testing\TestCase;
@@ -63,6 +64,21 @@ class TransactionsControllerTest extends TestCase
         $request = $this->actingAs($user,'users')
             ->post(route('postTransaction'),$payload);
         $request->assertResponseStatus(404);
+        
+    }
+
+    public function testRetailerShouldNotTransfer(){
+        $this->artisan('passport:install');
+        $retailer = Retailer::factory()->create();
+        $payload = [
+            'provider' => 'users',
+            'payee_id' => 'fodasenexiste',
+            'amount'   => 123
+        ];
+        
+        $request = $this->actingAs($retailer,'retailers')
+            ->post(route('postTransaction'),$payload);
+        $request->assertResponseStatus(401);
 
     }
 }
