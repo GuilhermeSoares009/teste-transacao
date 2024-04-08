@@ -2,7 +2,7 @@
 
 namespace App\Models\Transactions;
 
-use App\Models\Wallet;
+use App\Models\Transactions\Wallet as Wallet;
 use Illuminate\Database\Eloquent\Model;
 
 class Transaction extends Model
@@ -11,10 +11,15 @@ class Transaction extends Model
 
     protected $table = 'wallet_transactions';
 
-    protected $fiillable = ['id', 'payee_id', 'payer_id', 'amount'];
+    protected $fiillable = ['id', 'payee_wallet_id', 'payer_wallet_id', 'amount'];
 
-    public function wallet() 
+    public function walletPayer() 
     {   
-        return $this->belongsTo(Wallet::class);
+        return $this->belongsTo(Wallet::class,'payer_wallet_id');
+    }
+
+    public function walletPayee() 
+    {   
+        return $this->belongsTo(Wallet::class,'payee_wallet_id');
     }
 }

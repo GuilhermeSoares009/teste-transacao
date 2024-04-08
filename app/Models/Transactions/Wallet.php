@@ -22,4 +22,15 @@ class Wallet extends Model
         return $this->belongsTo(user::class);
     }
     
+    public function deposit($value) {
+        $this->update([
+            'balance' => $this->attributes['balance'] + $value
+        ]);
+    }
+
+    public function withdraw($value) {
+        $this->update([
+            'balance' => $this->attributes['balance'] - $value
+        ]);
+    }
 }

@@ -2,6 +2,7 @@
 
 namespace app\Http\Controllers\Transactions;
 
+use App\Exceptions\NoMoreMoneyException;
 use App\Exceptions\TransactionDeniedException as TransactionDeniedException;
 use App\Http\Controllers\Controller;
 use App\Repositories\Transaction\TransactionRepository;
@@ -31,7 +32,7 @@ class TransactionsController extends Controller
         try {
             $result = $this->repository->handle($fields);
             return response()->json($result);
-        }  catch (InvalidDataProviderException $exception) {
+        }  catch (InvalidDataProviderException | NoMoreMoneyException $exception) {
             return response()->json(['errors' => ['main' => $exception->getMessage()]], 422);
         }  catch (TransactionDeniedException $exception) {
             return response()->json(['errors' => ['main' => $exception->getMessage()]], 401);

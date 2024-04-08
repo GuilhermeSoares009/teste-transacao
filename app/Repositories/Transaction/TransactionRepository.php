@@ -5,8 +5,11 @@ namespace App\Repositories\Transaction;
 use App\Exceptions\NoMoreMoneyException;
 use App\Exceptions\TransactionDeniedException as TransactionDeniedException;
 use App\Models\Retailer;
+use App\Models\Transactions\Transaction;
+use App\Models\Transactions\Wallet;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use PHPUnit\Framework\InvalidDataProviderException;
 
 class TransactionRepository 
@@ -22,11 +25,11 @@ class TransactionRepository
 
         $user = $model->findOrFail($data['payee_id']);
 
-        if(!$this->checkUserBalance($user,$data['amount'])){
-            throw new NoMoreMoneyException("you don't have money");
+        if(!$this->checkUserBalance($user->wallet,$data['amount'])){
+            throw new NoMoreMoneyException("you don't have money",422);
         }
 
-        return [];
+        return $this->makeTransaction($data);
     }
 
     public function guardCanTransfer(): bool
@@ -52,9 +55,22 @@ class TransactionRepository
         }
     }
 
-    private function checkUserBalance($user, $money)
+    private function checkUserBalance(Wallet $wallet, $money)
     {
-        return $user->wallet->ballance >= $money;
+        return $wallet->ballance >= $money;
     
+    }
+
+    private function makeTransaction(array $data) {
+        $payload = [
+            'payer_wallet_id' => Auth::guard($data['provider'])->id,
+            'payee_wallet_id' => $data['payee_id'],
+            'amount' => $data['amount']
+        ];
+        return DB::transaction(function () use ($payload) {
+            $transaction = Transaction::create($payload);
+            $transaction->walletPayer->withdraw($payload['amount']);
+            $transaction->walletPayee->deposit($payload['amount']);
+        });
     }
 }
