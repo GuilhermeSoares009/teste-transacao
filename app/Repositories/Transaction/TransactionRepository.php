@@ -11,6 +11,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use PHPUnit\Framework\InvalidDataProviderException;
+use Ramsey\Uuid\Uuid;
 
 class TransactionRepository 
 {
@@ -21,11 +22,13 @@ class TransactionRepository
             throw new TransactionDeniedException('Retailer not authorized to make transactions', 401);
         }
 
-        $model = $this->getProvider($data['provider']);
+        if (!$this->userProviderExists($data)) {
+            throw new InvalidDataProviderException("eeeaadsa");
+        }
 
-        $user = $model->findOrFail($data['payee_id']);
+        $myWallet = Auth::guard($data['provider'])->user()->wallet;
 
-        if(!$this->checkUserBalance($user->wallet,$data['amount'])){
+        if(!$this->checkUserBalance($myWallet,$data['amount'])){
             throw new NoMoreMoneyException("you don't have money",422);
         }
 
@@ -61,9 +64,27 @@ class TransactionRepository
     
     }
 
-    private function makeTransaction(array $data) {
+    /**
+     * Function to know if the user exists on provider
+     * both functions should trigger an exception
+     * when somenthing is wrong
+     */
+    private function userProviderExists(array $data): bool
+    {
+        
+        try {
+            $model = $this->getProvider($data['provider']);
+            return (bool)$model->find($data['payee_id']);
+        } catch (InvalidDataProviderException | \Exception $e) {
+            return false;
+        }
+    }
+
+    private function makeTransaction(array $data) 
+    {
         $payload = [
-            'payer_wallet_id' => Auth::guard($data['provider'])->id,
+            'id' => Uuid::uuid4()->toString(),
+            'payer_wallet_id' => Auth::guard($data['provider'])->user()->id,
             'payee_wallet_id' => $data['payee_id'],
             'amount' => $data['amount']
         ];

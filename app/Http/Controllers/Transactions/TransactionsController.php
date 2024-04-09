@@ -36,6 +36,8 @@ class TransactionsController extends Controller
             return response()->json(['errors' => ['main' => $exception->getMessage()]], 422);
         }  catch (TransactionDeniedException $exception) {
             return response()->json(['errors' => ['main' => $exception->getMessage()]], 401);
+        }  catch (\Exception $exception) {
+            dd($exception->getMessage());
         }
 
     }

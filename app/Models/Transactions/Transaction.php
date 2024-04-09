@@ -15,11 +15,11 @@ class Transaction extends Model
 
     public function walletPayer() 
     {   
-        return $this->belongsTo(Wallet::class,'payer_wallet_id');
+        return $this->belongsTo(Wallet::class, 'id','payer_wallet_id');
     }
 
     public function walletPayee() 
     {   
-        return $this->belongsTo(Wallet::class,'payee_wallet_id');
+        return $this->belongsTo(Wallet::class, 'id','payee_wallet_id');
     }
 }
