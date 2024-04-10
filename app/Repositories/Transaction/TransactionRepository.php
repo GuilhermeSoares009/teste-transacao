@@ -15,24 +15,25 @@ use Ramsey\Uuid\Uuid;
 
 class TransactionRepository 
 {
-    public function handle(array $data): array
+    public function handle(array $data): Transaction
     {
 
         if(!$this->guardCanTransfer()) {
             throw new TransactionDeniedException('Retailer not authorized to make transactions', 401);
         }
 
-        if (!$this->userProviderExists($data)) {
+        if (!$payee = $this->retrievePayee($data)) {
             throw new InvalidDataProviderException("eeeaadsa");
         }
 
         $myWallet = Auth::guard($data['provider'])->user()->wallet;
 
+        
         if(!$this->checkUserBalance($myWallet,$data['amount'])){
             throw new NoMoreMoneyException("you don't have money",422);
         }
 
-        return $this->makeTransaction($data);
+        return $this->makeTransaction($payee, $data);
     }
 
     public function guardCanTransfer(): bool
@@ -60,7 +61,7 @@ class TransactionRepository
 
     private function checkUserBalance(Wallet $wallet, $money)
     {
-        return $wallet->ballance >= $money;
+        return $wallet->balance >= $money;
     
     }
 
@@ -69,23 +70,23 @@ class TransactionRepository
      * both functions should trigger an exception
      * when somenthing is wrong
      */
-    private function userProviderExists(array $data): bool
+    private function retrievePayee(array $data)
     {
         
         try {
             $model = $this->getProvider($data['provider']);
-            return (bool)$model->find($data['payee_id']);
+            return $model->find($data['payee_id']);
         } catch (InvalidDataProviderException | \Exception $e) {
             return false;
         }
     }
 
-    private function makeTransaction(array $data) 
+    private function makeTransaction($payee, array $data) 
     {
         $payload = [
             'id' => Uuid::uuid4()->toString(),
-            'payer_wallet_id' => Auth::guard($data['provider'])->user()->id,
-            'payee_wallet_id' => $data['payee_id'],
+            'payer_wallet_id' => Auth::guard($data['provider'])->user()->wallet->id,
+            'payee_wallet_id' => $payee->wallet->id,
             'amount' => $data['amount']
         ];
         return DB::transaction(function () use ($payload) {

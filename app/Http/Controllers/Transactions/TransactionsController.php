@@ -26,7 +26,8 @@ class TransactionsController extends Controller
             'payee_id' => 'required',
             'amount' => 'required|numeric'
         ]);
- 
+        
+
         $fields = $request->only(['provider', 'payee_id', 'amount']);
         
         try {
@@ -37,7 +38,7 @@ class TransactionsController extends Controller
         }  catch (TransactionDeniedException $exception) {
             return response()->json(['errors' => ['main' => $exception->getMessage()]], 401);
         }  catch (\Exception $exception) {
-            dd($exception->getMessage());
+            dd($exception->getMessage(),);
         }
 
     }

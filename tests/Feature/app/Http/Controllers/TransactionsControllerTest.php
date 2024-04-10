@@ -98,20 +98,20 @@ class TransactionsControllerTest extends TestCase
             ->post(route('postTransaction'),$payload);
         $request->assertResponseStatus(422);
     }
+
     public function testUserCanTransferMoney() {
         $this->artisan('passport:install');
-        $userPrayer = User::factory()->create();
-        $userPrayer->wallet->deposit(1000);
+        $userPayer = User::factory()->create();
+        $userPayer->wallet->deposit(1000);
         $userPayed = User::factory()->create();
-
 
         $payload = [
             'provider' => 'users',
             'payee_id' => $userPayed->id,
             'amount'   => 100
-        ];
-        
-        $request = $this->actingAs($userPrayer,'users')
+        ];       
+    
+        $request = $this->actingAs($userPayer,'users')
             ->post(route('postTransaction'),$payload);
         $request->assertResponseStatus(200);
     }
