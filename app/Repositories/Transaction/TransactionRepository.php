@@ -32,7 +32,7 @@ class TransactionRepository
         if(!$this->checkUserBalance($myWallet,$data['amount'])){
             throw new NoMoreMoneyException("you don't have money",422);
         }
-
+       
         return $this->makeTransaction($payee, $data);
     }
 
@@ -89,10 +89,12 @@ class TransactionRepository
             'payee_wallet_id' => $payee->wallet->id,
             'amount' => $data['amount']
         ];
+
         return DB::transaction(function () use ($payload) {
             $transaction = Transaction::create($payload);
             $transaction->walletPayer->withdraw($payload['amount']);
             $transaction->walletPayee->deposit($payload['amount']);
+            return $transaction;
         });
     }
 }
