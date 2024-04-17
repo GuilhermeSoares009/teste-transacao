@@ -31,6 +31,7 @@ class TransactionsController extends Controller
         $fields = $request->only(['provider', 'payee_id', 'amount']);
         
         try {
+            
             $result = $this->repository->handle($fields);
             return response()->json($result);
         }  catch (InvalidDataProviderException | NoMoreMoneyException $exception) {

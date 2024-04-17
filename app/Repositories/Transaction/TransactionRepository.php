@@ -8,6 +8,7 @@ use App\Models\Retailer;
 use App\Models\Transactions\Transaction;
 use App\Models\Transactions\Wallet;
 use App\Models\User;
+use App\Services\MockyService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use PHPUnit\Framework\InvalidDataProviderException;
@@ -32,7 +33,10 @@ class TransactionRepository
         if(!$this->checkUserBalance($myWallet,$data['amount'])){
             throw new NoMoreMoneyException("you don't have money",422);
         }
-       
+        
+//dd(1);
+        if (!$this->isServiceAbleToMakeTransaction()) {
+        }
         return $this->makeTransaction($payee, $data);
     }
 
@@ -96,5 +100,10 @@ class TransactionRepository
             $transaction->walletPayee->deposit($payload['amount']);
             return $transaction;
         });
+    }
+
+    private function isServiceAbleToMakeTransaction() {
+        $service = app(MockyService::class)->authorizeTransaction();
+        dd($service);
     }
 }

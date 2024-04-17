@@ -113,7 +113,18 @@ class TransactionsControllerTest extends TestCase
     
         $request = $this->actingAs($userPayer,'users')
             ->post(route('postTransaction'),$payload);
+
         $request->assertResponseStatus(200);
+    
+        $request->seeInDatabase('wallets',[
+            'id' => $userPayer->wallet->id,
+            'balance' => 900
+        ]);
+        
+        $request->seeInDatabase('wallets',[
+            'id' => $userPayed->wallet->id,
+            'balance' => 100
+        ]);
     }
 }
 
