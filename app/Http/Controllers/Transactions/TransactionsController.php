@@ -2,11 +2,13 @@
 
 namespace app\Http\Controllers\Transactions;
 
+use App\Exceptions\IdleServiceException;
 use App\Exceptions\NoMoreMoneyException;
 use App\Exceptions\TransactionDeniedException as TransactionDeniedException;
 use App\Http\Controllers\Controller;
 use App\Repositories\Transaction\TransactionRepository;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use PHPUnit\Framework\InvalidDataProviderException;
 
 class TransactionsController extends Controller
@@ -35,11 +37,13 @@ class TransactionsController extends Controller
             $result = $this->repository->handle($fields);
             return response()->json($result);
         }  catch (InvalidDataProviderException | NoMoreMoneyException $exception) {
-            return response()->json(['errors' => ['main' => $exception->getMessage()]], 422);
-        }  catch (TransactionDeniedException $exception) {
+            return response()->json(['errors' => ['main' => $exception->getMessage()]], $exception->getCode());
+        }  catch (TransactionDeniedException | IdleServiceException $exception) {
             return response()->json(['errors' => ['main' => $exception->getMessage()]], 401);
         }  catch (\Exception $exception) {
-            dd($exception->getMessage());
+            Log::critical('[Transaction Gone Wrong]', [
+                'message' => $exception->getMessage()
+            ]);
         }
 
     }

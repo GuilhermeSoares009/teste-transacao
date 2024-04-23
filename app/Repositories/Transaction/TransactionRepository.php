@@ -2,6 +2,8 @@
 
 namespace App\Repositories\Transaction;
 
+use App\Events\SendNotification;
+use App\Exceptions\IdleServiceException;
 use App\Exceptions\NoMoreMoneyException;
 use App\Exceptions\TransactionDeniedException as TransactionDeniedException;
 use App\Models\Retailer;
@@ -24,18 +26,19 @@ class TransactionRepository
         }
 
         if (!$payee = $this->retrievePayee($data)) {
-            throw new InvalidDataProviderException("eeeaadsa");
+            throw new InvalidDataProviderException("User Not Found", 404);
         }
 
         $myWallet = Auth::guard($data['provider'])->user()->wallet;
 
         
         if(!$this->checkUserBalance($myWallet,$data['amount'])){
-            throw new NoMoreMoneyException("you don't have money",422);
+            throw new NoMoreMoneyException("You don't have this amount to trasnfer.",422);
         }
         
 //dd(1);
         if (!$this->isServiceAbleToMakeTransaction()) {
+            throw new IdleServiceException('Service is not responding. Try again later.');
         }
         return $this->makeTransaction($payee, $data);
     }
@@ -96,14 +99,21 @@ class TransactionRepository
 
         return DB::transaction(function () use ($payload) {
             $transaction = Transaction::create($payload);
+
             $transaction->walletPayer->withdraw($payload['amount']);
             $transaction->walletPayee->deposit($payload['amount']);
+
+            event(new SendNotification($transaction));
+
             return $transaction;
+        
         });
     }
 
-    private function isServiceAbleToMakeTransaction() {
+    private function isServiceAbleToMakeTransaction(): bool
+    {
         $service = app(MockyService::class)->authorizeTransaction();
-        dd($service);
+        
+        return $service['message'] == 'Autorizado';
     }
 }

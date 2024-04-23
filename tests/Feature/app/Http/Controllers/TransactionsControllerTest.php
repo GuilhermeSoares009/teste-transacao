@@ -2,6 +2,7 @@
 
 namespace Feature\app\Http\Controllers;
 
+use App\Events\SendNotification;
 use App\Models\Retailer;
 use App\Models\User;
 use Laravel\Lumen\Testing\DatabaseMigrations;
@@ -100,6 +101,7 @@ class TransactionsControllerTest extends TestCase
     }
 
     public function testUserCanTransferMoney() {
+        $this->expectsEvents(SendNotification::class);
         $this->artisan('passport:install');
         $userPayer = User::factory()->create();
         $userPayer->wallet->deposit(1000);
