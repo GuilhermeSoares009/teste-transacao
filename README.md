@@ -40,7 +40,7 @@
   - Tratamentos de erros e Logs dos processos.  
 
 ## Como rodar o projeto
-    1 - git clone https://github.com/Canhassi12/camiseta-verde-test.git
+    1 - git clone https://github.com/GuilhermeSoares009/teste-transacao.git
     2 - composer install
     3 - Renomear .env.example para .env
     4 - php artisan key:generate
